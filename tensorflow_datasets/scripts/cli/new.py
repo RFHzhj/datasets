@@ -87,11 +87,11 @@ def register_subparser(parsers: argparse._SubParsersAction) -> None:  # pylint: 
       help=('Path where the dataset directory will be created. '
             'Defaults to current directory.')
   )
-  new_parser.set_defaults(subparser_fn=_create_dataset_files)
+  new_parser.set_defaults(subparser_fn=_create_dataset)
 
 
-def _create_dataset_files(args: argparse.Namespace) -> None:
-  """Creates the dataset directory template. Executed by `tfds new <name>`."""
+def _create_dataset(args: argparse.Namespace) -> None:
+  """Creates the dataset directory. Executed by `tfds new <name>`."""
   ds_name = args.dataset_name
 
   # Creates the root directory
@@ -105,9 +105,15 @@ def _create_dataset_files(args: argparse.Namespace) -> None:
   # Whether the dataset is added in TFDS or in an external repository
   in_tfds = 'tensorflow_datasets' in root_dir.parts
 
+  create_dataset_files(ds_name, in_tfds, root_dir)
+
+
+def create_dataset_files(ds_name, in_tfds, root_dir) -> None:
+  """Creates the dataset files."""
+
   info = DatasetInfo(name=ds_name, in_tfds=in_tfds, path=root_dir)
 
-  _create_dataset(info)
+  _create_dataset_file(info)
   _create_dataset_test(info)
   _create_init(info)
   _create_dummy_data(info)
@@ -122,7 +128,7 @@ def _create_dataset_files(args: argparse.Namespace) -> None:
   )
 
 
-def _create_dataset(info: DatasetInfo) -> None:
+def _create_dataset_file(info: DatasetInfo) -> None:
   """Create a new dataset from a template."""
   file_path = info.path / f'{info.name}.py'
 
